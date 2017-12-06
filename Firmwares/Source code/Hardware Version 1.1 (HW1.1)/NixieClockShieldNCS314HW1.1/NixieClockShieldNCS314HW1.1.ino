@@ -586,13 +586,56 @@ String updateDisplayString()
     }
 
     /* Split the string IncomingData into hours, minutes, seconds substring */
-    byte hours = (IncomingData.substring(0, 2).toInt());
-    byte minutes = (IncomingData.substring(2, 4).toInt());
-    byte seconds = (IncomingData.substring(4, 6).toInt());
+    String incominghours = IncomingData.substring(0, 2);
+    String incomingminutes = IncomingData.substring(2, 4);
+    String incomingseconds = IncomingData.substring(4, 6);
+    byte hours = (incominghours.toInt());
+    byte minutes = (incomingminutes.toInt());
+    byte seconds = (incomingseconds.toInt());
+    int red = IncomingData.substring(6, 9).toInt();
+    int green = IncomingData.substring(9, 12).toInt();
+    int blue = IncomingData.substring(12, 15).toInt();
+    /* Serial.println(red); */
+    /* Serial.println(green); */
+    /* Serial.println(blue); */
 
+    /* RedLight = red; */
+    /* GreenLight = green; */
+    /* BlueLight = blue; */
+
+    /* EEPROM.write(LEDsLockEEPROMAddress, 0); */
+
+    /* Convert values for 12 hour time */
+    if (value[hModeValueIndex]!=24) {
+        if (incominghours == "00") {
+            incominghours = "12";
+        } else if (incominghours == "13") {
+            incominghours = "1";
+        } else if (incominghours == "14") {
+            incominghours = "2";
+        } else if (incominghours == "15") {
+            incominghours = "3";
+        } else if (incominghours == "16") {
+            incominghours = "4";
+        } else if (incominghours == "17") {
+            incominghours = "5";
+        } else if (incominghours == "18") {
+            incominghours = "6";
+        } else if (incominghours == "19") {
+            incominghours = "7";
+        } else if (incominghours == "20") {
+            incominghours = "8";
+        } else if (incominghours == "21") {
+            incominghours = "9";
+        } else if (incominghours == "22") {
+            incominghours = "10";
+        } else if (incominghours == "23") {
+            incominghours = "11";
+        }
+    }
 
     /* If Serial USB data can't be detected, just use the normal mechanism to get the next hour. */
-    if (IncomingData == "") {
+    if (((incominghours == "12" || incominghours == "00") && incomingminutes == "00" && incomingseconds == "00") || IncomingData == "") {
         /* In case USB Serial connection is established, and the program starts to read from it the next time this function gets called, set lastUpdatedByNTP to be false so that that function knows USB Serial based time updating was disabled until this point */
         lastUpdatedByNTP = false;
         if (value[hModeValueIndex]==24) return PreZero(hour())+PreZero(minute())+PreZero(second());
@@ -610,6 +653,8 @@ String updateDisplayString()
                 setRTCDateTime(hours, minutes, seconds, RTC_day, RTC_month, RTC_year, RTC_day_of_week);
                 /* Update the values of RTC_hours, RTC_minutes, RTC_seconds from the newly updated RTC moddule */
                 getRTCTime();
+                /* Set actual time to be newly updated RTC time. */
+                setTime(RTC_hours, RTC_minutes, RTC_seconds, RTC_day, RTC_month, RTC_year);
                 /* Reset counter to 0 since we just updated RTC */
                 updateRTCCounter = 0;
             } else {
@@ -622,12 +667,18 @@ String updateDisplayString()
             setRTCDateTime(hours, minutes, seconds, RTC_day, RTC_month, RTC_year, RTC_day_of_week);
             /* Update the values of RTC_hours, RTC_minutes, RTC_seconds from the newly updated RTC moddule */
             getRTCTime();
+            /* Set actual time to be newly updated RTC time. */
+            setTime(RTC_hours, RTC_minutes, RTC_seconds, RTC_day, RTC_month, RTC_year);
             /* Reset counter to 0 since we just updated RTC */
             updateRTCCounter = 0;
         }
         /* update lastUpdatedByNTP every time the updateDisplayString() runs using the serial USB method rather than RTC */
         lastUpdatedByNTP = true;
-        return IncomingData;
+        if (value[hModeValueIndex]==24) {
+            return IncomingData;
+        } else {
+            return incominghours + incomingminutes + incomingseconds;
+        }
     }
   }
   return stringToDisplay;
@@ -768,13 +819,6 @@ void doDotBlink()
 
 void setRTCDateTime(byte h, byte m, byte s, byte d, byte mon, byte y, byte w)
 {
-  Serial.println(h);
-  Serial.println(m);
-  Serial.println(s);
-  Serial.println(d);
-  Serial.println(m);
-  Serial.println(y);
-  Serial.println(w);
   Wire.beginTransmission(DS1307_ADDRESS);
   Wire.write(zero); //stop Oscillator
 
