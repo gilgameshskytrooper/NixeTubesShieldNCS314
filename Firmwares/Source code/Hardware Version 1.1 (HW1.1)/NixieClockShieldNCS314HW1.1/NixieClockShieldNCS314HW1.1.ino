@@ -263,7 +263,7 @@ void loop() {
   
   if ((millis()-prevTime4FireWorks)>5)
   {
-    rotateFireWorks(); //change color (by 1 step)
+    /* rotateFireWorks(); //change color (by 1 step) */
     prevTime4FireWorks=millis();
   }
     
@@ -571,8 +571,6 @@ String updateDisplayString()
   static  unsigned long lastTimeStringWasUpdated;
   if ((millis()-lastTimeStringWasUpdated)>1000)
   {
-    //Serial.println("doDotBlink");
-    //doDotBlink();
     lastTimeStringWasUpdated=millis();
 
 
@@ -595,15 +593,26 @@ String updateDisplayString()
     int red = IncomingData.substring(6, 9).toInt();
     int green = IncomingData.substring(9, 12).toInt();
     int blue = IncomingData.substring(12, 15).toInt();
-    /* Serial.println(red); */
-    /* Serial.println(green); */
-    /* Serial.println(blue); */
 
-    /* RedLight = red; */
-    /* GreenLight = green; */
-    /* BlueLight = blue; */
-
-    /* EEPROM.write(LEDsLockEEPROMAddress, 0); */
+    if (red == RedLight && green == GreenLight && blue == BlueLight) {
+        LEDsLock = true;
+    } else {
+        RedLight = red;
+        GreenLight = green;
+        BlueLight = blue;
+        if (RedLight == 0 && GreenLight == 0 && BlueLight == 0) {
+            Serial.println("000 000 000");
+            RGBLedsOn = false;
+            LEDsLock = false;
+            rotateFireWorks();
+        } else {
+            RGBLedsOn = true;
+            LEDsLock = false;
+            rotateFireWorks();
+            digitalWrite(DHVpin, HIGH);
+            EEPROM.write(LEDsLockEEPROMAddress, 1);
+        }
+    }
 
     /* Convert values for 12 hour time */
     if (value[hModeValueIndex]!=24) {
