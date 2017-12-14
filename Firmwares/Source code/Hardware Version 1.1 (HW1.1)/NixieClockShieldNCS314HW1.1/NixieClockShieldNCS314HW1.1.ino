@@ -597,21 +597,25 @@ String updateDisplayString()
     if (red == RedLight && green == GreenLight && blue == BlueLight) {
         LEDsLock = true;
     } else {
-        RedLight = red;
-        GreenLight = green;
-        BlueLight = blue;
-        if (RedLight == 0 && GreenLight == 0 && BlueLight == 0) {
-            Serial.println("000 000 000");
-            RGBLedsOn = false;
-            LEDsLock = false;
-            rotateFireWorks();
-        } else {
-            RGBLedsOn = true;
-            LEDsLock = false;
-            rotateFireWorks();
-            digitalWrite(DHVpin, HIGH);
-            EEPROM.write(LEDsLockEEPROMAddress, 1);
-        }
+        /* RedLight = red; */
+        /* GreenLight = green; */
+        /* BlueLight = blue; */
+        /* if (RedLight == 0 && GreenLight == 0 && BlueLight == 0) { */
+            /* Serial.println("000 000 000"); */
+            /* RGBLedsOn = false; */
+            /* LEDsLock = false; */
+            /* rotateFireWorks(); */
+        /* } else { */
+            analogWrite(RedLedPin, red);
+            analogWrite(GreenLedPin, green);
+            analogWrite(BlueLedPin, blue);
+            /* RGBLedsOn = true; */
+            /* LEDsLock = false; */
+            /* rotateFireWorks(); */
+            /* LEDsLock = true; */
+            /* digitalWrite(DHVpin, HIGH); */
+            /* EEPROM.write(LEDsLockEEPROMAddress, 1); */
+        /* } */
     }
 
     /* Convert values for 12 hour time */
